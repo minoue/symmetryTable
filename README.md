@@ -1,6 +1,6 @@
 # symmetryTable
 
-Maya plugin to find corresponding vertices, edges, or faces based on topological symmetry table.
+Maya plugin to find corresponding symmetrical vertices, edges, or faces based on topological symmetry table.
 
 **This is a plugin that only creates symmetry tables and does not include any tools such as mirroring vertex positions/weights.**
 
@@ -20,8 +20,7 @@ Windows
 ```
 
 ## How to use
-Select an edge where is a middle of the topology, then run the command
-
+Select the edge located in the center of the topology and run the command.
 <img src="./img/middleEdge.png" width="350">
 
 
@@ -32,6 +31,10 @@ Select an edge where is a middle of the topology, then run the command
 |edge|e|bool|false|C|
 |face|f|bool|false|C|
 |verbose|vb|bool|false|C|
+
+* v flag returns a list of vertices.
+* e flag returns a list of edges
+* f flag returns a list of faces
 
 ## Example
 ```python
