@@ -49,6 +49,7 @@ private:
     bool outVertex;
     bool outEdge;
     bool outFace;
+    bool verbose;
 };
 
 inline int findIndex(std::vector<int>& v, int k)

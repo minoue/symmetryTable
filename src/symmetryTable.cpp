@@ -1,7 +1,9 @@
 #include <algorithm>
 #include <cstddef>
 #include <deque>
+#include <system_error>
 #include <tuple>
+#include <chrono>
 
 #include "symmetryTable.hpp"
 
@@ -26,6 +28,18 @@ static const char* eFlag = "-e";
 static const char* eFlagLong = "-edge";
 static const char* fFlag = "-f";
 static const char* fFlagLong = "-face";
+static const char* verboseFlag = "-vb";
+static const char* verboseFlagLong = "-verbose";
+
+void timeIt(
+    std::chrono::system_clock::time_point begin,
+    std::chrono::system_clock::time_point end,
+    std::string message)
+{
+    auto dur = end - begin;
+    auto elapsedTime = std::chrono::duration<double>(dur).count();
+    std::cout << message << elapsedTime << " seconds." << std::endl;
+}
 
 bool isCCW(std::vector<int> faceVertices, int edgeVertices[2])
 {
@@ -53,6 +67,7 @@ MSyntax SymmetryTable::newSyntax()
     syntax.addFlag(vFlag, vFlagLong, MSyntax::kBoolean);
     syntax.addFlag(eFlag, eFlagLong, MSyntax::kBoolean);
     syntax.addFlag(fFlag, fFlagLong, MSyntax::kBoolean);
+    syntax.addFlag(verboseFlag, verboseFlagLong, MSyntax::kBoolean);
     return syntax;
 }
 
@@ -90,6 +105,13 @@ MStatus SymmetryTable::doIt(const MArgList& args)
         outFace = false;
     }
 
+    if (argData.isFlagSet(verboseFlag)) {
+        status = argData.getFlagArgument(verboseFlag, 0, verbose);
+        CHECK_MSTATUS_AND_RETURN_IT(status);
+    } else {
+        verbose = false;
+    }
+
     return redoIt();
 }
 
@@ -121,6 +143,9 @@ MStatus SymmetryTable::redoIt()
     int faceAIndex = edges[static_cast<size_t>(selectedIndex)].faces[0];
     int faceBIndex = edges[static_cast<size_t>(selectedIndex)].faces[1];
 
+    // Calc time for queue process
+    auto start = std::chrono::system_clock::now();
+    
     std::deque<Task> dq;
 
     Task initialTask = { faceAIndex, faceBIndex, selectedIndex, selectedIndex };
@@ -283,6 +308,11 @@ MStatus SymmetryTable::redoIt()
             result.append(x);
         }
     }
+    
+    auto end = std::chrono::system_clock::now();
+
+    if (verbose)
+        timeIt(start, end, "Topological symmetry calculated in : ");
 
     MPxCommand::setResult(result);
     return status;
@@ -290,6 +320,8 @@ MStatus SymmetryTable::redoIt()
 
 MStatus SymmetryTable::initMesh(MDagPath& dagPath)
 {
+    auto start = std::chrono::system_clock::now();
+
     MFnMesh fnMesh(dagPath);
     size_t numVerts = static_cast<size_t>(fnMesh.numVertices());
     size_t numFaces = static_cast<size_t>(fnMesh.numPolygons());
@@ -345,6 +377,11 @@ MStatus SymmetryTable::initMesh(MDagPath& dagPath)
         edges[index].vertices[0] = v1;
         edges[index].vertices[1] = v2;
     }
+
+    auto end = std::chrono::system_clock::now();
+
+    if (verbose)
+        timeIt(start, end, "Mesh init time : ");
 
     return MS::kSuccess;
 }
