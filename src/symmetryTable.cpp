@@ -30,6 +30,8 @@ static const char* fFlag = "-f";
 static const char* fFlagLong = "-face";
 static const char* verboseFlag = "-vb";
 static const char* verboseFlagLong = "-verbose";
+static const char* halfFlag = "-hf";
+static const char* halfFlagLong = "-half";
 
 void timeIt(
     std::chrono::system_clock::time_point begin,
@@ -68,6 +70,7 @@ MSyntax SymmetryTable::newSyntax()
     syntax.addFlag(eFlag, eFlagLong, MSyntax::kBoolean);
     syntax.addFlag(fFlag, fFlagLong, MSyntax::kBoolean);
     syntax.addFlag(verboseFlag, verboseFlagLong, MSyntax::kBoolean);
+    syntax.addFlag(halfFlag, halfFlagLong, MSyntax::kBoolean);
     return syntax;
 }
 
@@ -110,6 +113,13 @@ MStatus SymmetryTable::doIt(const MArgList& args)
         CHECK_MSTATUS_AND_RETURN_IT(status);
     } else {
         verbose = false;
+    }
+    
+    if (argData.isFlagSet(halfFlag)) {
+        status = argData.getFlagArgument(halfFlag, 0, halfOnly);
+        CHECK_MSTATUS_AND_RETURN_IT(status);
+    } else {
+        halfOnly = false;
     }
 
     return redoIt();
@@ -221,8 +231,15 @@ MStatus SymmetryTable::redoIt()
         for (size_t i = 0; i < numFaceVertices; i++) {
             int leftId = leftFace.vertices[i];
             int rightId = rightFace.vertices[i];
-            vertices[static_cast<size_t>(leftId)] = rightId;
+
+            // store corresponding vertices
             vertices[static_cast<size_t>(rightId)] = leftId;
+            if ( halfOnly ) {
+                // If half flag is on, keep values one side -1, otherwise store corresponding vertices
+                vertices[static_cast<size_t>(leftId)] = -1;
+            } else {
+                vertices[static_cast<size_t>(leftId)] = rightId;
+            }
         }
         // Search pairs of edges
         int leftStartingEdgeLocalIndex = findIndex(leftFace.edges, leftStartEdgeIndex);
@@ -330,6 +347,9 @@ MStatus SymmetryTable::initMesh(MDagPath& dagPath)
     vertices.resize(numVerts);
     edges.resize(numEdges);
     faces.resize(numFaces);
+
+    // Fill all with -1. This is to determine if vertex is left side or right side
+    std::fill(vertices.begin(), vertices.end(), -1);
 
     MIntArray ids;
 

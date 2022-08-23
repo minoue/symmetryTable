@@ -2,7 +2,7 @@
 #include <maya/MFnPlugin.h>
 
 static const char* const cmdName = "createSymmetryTable";
-static const char* const version = "0.0.3";
+static const char* const version = "0.0.4";
 static const char* const author = "Michitaka Inoue";
 
 MStatus initializePlugin(MObject mObj)

@@ -50,6 +50,7 @@ private:
     bool outEdge;
     bool outFace;
     bool verbose;
+    bool halfOnly;
 };
 
 inline int findIndex(std::vector<int>& v, int k)
