@@ -49,6 +49,7 @@ vtxs = cmds.createSymmetryTable(half=True)  # Make sure half flag is on
 
 # Extract only one side
 # In this case, key of dict is left, value is right
+numVert = len(vtxs)
 d = {n: int(vtxs[n]) for n in range(numVert) if vtxs[n] != -1}
 
 # Select object
