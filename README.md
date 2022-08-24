@@ -23,18 +23,14 @@ Windows
 Select the edge located in the center of the topology and run the command.
 <img src="./img/middleEdge.png" width="350">
 
-
 ## Flags
-| Longname | Shortname | Argument types | Default | Properties |
-|:---------|----------:|:--------------:|:-------:|:----------:|
-|vertex|v|bool|true|C|
-|edge|e|bool|false|C|
-|face|f|bool|false|C|
-|verbose|vb|bool|false|C|
-
-* v flag returns a list of vertices.
-* e flag returns a list of edges
-* f flag returns a list of faces
+| Long name(short name) | Argument types | Default | Description |
+|:---------|:--------------:|:-------:|:----------:|
+|vertex ( v )|boolean|true|Return vertex indices|
+|edge ( e )|boolean|false|Return edge indices|
+|face ( f )|boolean|false|Return face indices|
+|half ( hf )|boolean|false|Return only vertices one side.|
+|verbose ( vb )|boolean|false|Verbose outputs|
 
 ## Example
 ```python
@@ -46,3 +42,32 @@ print(vtxs)
 
 ```
 <img src="./img/vtxPairs.png" width="350">
+
+### Select only left/right side of vertices
+```python
+vtxs = cmds.createSymmetryTable(half=True)  # Make sure half flag is on
+
+# Extract only one side
+# In this case, key of dict is left, value is right
+d = {n: int(vtxs[n]) for n in range(numVert) if vtxs[n] != -1}
+
+# Select object
+sel = cmds.ls(sl=True, fl=True, long=True)[0]
+paths = ["{}.vtx[{}]".format(sel, i) for i in d]
+cmds.select(paths, r=True)
+```
+<img src="./img/halfVerts.png" width="350">
+
+### Select only the middle vertices
+```python
+vtxs = cmds.createSymmetryTable()
+
+# Extract only middle vertices
+d = [i for n, i in enumerate(vtxs) if n == vtxs[n]]
+
+# Select object
+sel = cmds.ls(sl=True, fl=True, long=True)[0]
+paths = ["{}.vtx[{}]".format(sel, i) for i in d]
+cmds.select(paths, r=True)
+```
+<img src="./img/middleVerts.png" width="350">
