@@ -4,6 +4,9 @@ Maya plugin to find corresponding symmetrical vertices, edges, or faces based on
 
 **This is a plugin that only creates symmetry tables and does not include any tools such as mirroring vertex positions/weights.**
 
+Tools this plugin is used with
+* [miSymMesh](https://github.com/minoue/miSymMesh)
+
 ## Build
 for Maya2022 linux/macOS
 
@@ -29,17 +32,22 @@ Select the edge located in the center of the topology and run the command.
 |vertex ( v )|boolean|true|Return vertex indices|
 |edge ( e )|boolean|false|Return edge indices|
 |face ( f )|boolean|false|Return face indices|
-|half ( hf )|boolean|false|Return only vertices one side.|
+|half ( hf )|boolean|false|Return only vertices one side. The other side and middle vertices get -1 in return|
 |verbose ( vb )|boolean|false|Verbose outputs|
 
 ## Example
 ```python
 from maya import cmds
+
 vtxs = cmds.createSymmetryTable()
 print(vtxs)
 > [8L, 7L, 6L, 5L, 4L, 3L, 2L, 1L, 0L, 19L, 18L, 17L, 16L, ... ]
- #, where the corresponding vertex of the first vertex is 8, the second vertex is 7, the third is 6, and so on...
+#, where the corresponding vertex of the first vertex is 8, the second vertex is 7, the third is 6, and so on...
 
+vtxs = cmds.createSymmetryTable(half=True))
+print(vtxs)
+> [8, 7, 6, 5, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 13, 12, 11, 10 ...
+# the first to forth vertices belong to left(or right) side, vertices with -1 belong to the other side or middle
 ```
 <img src="./img/vtxPairs.png" width="350">
 
